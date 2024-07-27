@@ -31,20 +31,27 @@ def create_utilization_plot(line_number):
 
 
 # Function to calculate overall utilization
-def calculate_overall_utilization(line_number):
-    filtered_df = utilization_df[utilization_df["Line"] == line_number]
-    total_production = filtered_df["Quantity"].sum()
-    total_capacity = (
-        filtered_df["total_working_days"] * filtered_df["daily_capacity"]
-    ).sum()
-    overall_utilization = (total_production / total_capacity) * 100
-    return overall_utilization
+def calculate_overall_utilization():
+    utilization_summary = []
+    for line in utilization_df['Line'].unique():
+        line_df = utilization_df[utilization_df['Line'] == line]
+        total_production = line_df['Quantity'].sum()
+        total_capacity = (line_df['total_working_days'] * line_df['daily_capacity']).sum()
+        overall_utilization = (total_production / total_capacity) * 100
+        utilization_summary.append({
+            'Line': line,
+            'Total Production': total_production,
+            'Total Capacity': total_capacity,
+            'Overall Utilization Percentage': overall_utilization
+        })
+    return pd.DataFrame(utilization_summary)
 
 
 # Function to create demand fulfillment plot
-def create_demand_plot():
+def create_demand_plot(selected_products):
+    filtered_df = demand_df[demand_df["Product"].isin(selected_products)]
     fig = px.bar(
-        demand_df,
+        filtered_df,
         x="Month",
         y=["Optimized Plan quantity", "Sale Demand"],
         barmode="group",
@@ -61,12 +68,20 @@ def create_demand_plot():
 
 
 # Function to calculate overall demand fulfillment
-def calculate_overall_demand_fulfillment(selected_products):
-    filtered_df = demand_df[demand_df["Product"].isin(selected_products)]
-    total_optimized_plan = filtered_df["Optimized Plan quantity"].sum()
-    total_demand = filtered_df["Sale Demand"].sum()
-    overall_fulfillment = (total_optimized_plan / total_demand) * 100
-    return overall_fulfillment
+def calculate_overall_demand_fulfillment():
+    demand_summary = []
+    for product in demand_df['Product'].unique():
+        product_df = demand_df[demand_df['Product'] == product]
+        total_optimized_plan = product_df['Optimized Plan quantity'].sum()
+        total_demand = product_df['Sale Demand'].sum()
+        overall_fulfillment = (total_optimized_plan / total_demand) * 100
+        demand_summary.append({
+            'Product': product,
+            'Total Optimized Plan': total_optimized_plan,
+            'Total Demand': total_demand,
+            'Fulfillment Percentage': overall_fulfillment
+        })
+    return pd.DataFrame(demand_summary)
 
 
 # Streamlit code
@@ -91,33 +106,41 @@ def main():
         line_number = st.sidebar.selectbox(
             "Select Line Number", utilization_df["Line"].unique()
         )
-        with st.spinner("Updating Dashboard..."):
-            fig = create_utilization_plot(line_number)
-            st.plotly_chart(fig, use_container_width=True)
+        view_type = st.sidebar.radio('Select View', ['Monthly Utilization', 'Overall Utilization'])
+        
+        if view_type == 'Monthly Utilization':
+            with st.spinner("Updating Dashboard..."):
+                fig = create_utilization_plot(line_number)
+                st.plotly_chart(fig, use_container_width=True)
 
-        overall_utilization = calculate_overall_utilization(line_number)
-        st.markdown(
-            f"### Overall Utilization for {line_number}: {overall_utilization:.2f}%"
-        )
+            st.markdown("## Data Table")
+            st.dataframe(utilization_df[utilization_df["Line"] == line_number])
 
-        st.markdown("## Data Table")
-        st.dataframe(utilization_df[utilization_df["Line"] == line_number])
-
+        elif view_type == 'Overall Utilization':
+            utilization_summary_df = calculate_overall_utilization()
+            st.markdown("## Overall Utilization")
+            st.dataframe(utilization_summary_df)
+        
     elif analysis_type == "Demand Fulfillment":
         products = st.sidebar.multiselect(
             "Select Product(s)",
             demand_df["Product"].unique(),
             default=demand_df["Product"].unique(),
         )
-        with st.spinner("Updating Dashboard..."):
-            fig = create_demand_plot()
-            st.plotly_chart(fig, use_container_width=True)
+        view_type = st.sidebar.radio('Select View', ['Monthly Fulfillment', 'Overall Fulfillment'])
+        
+        if view_type == 'Monthly Fulfillment':
+            with st.spinner("Updating Dashboard..."):
+                fig = create_demand_plot(products)
+                st.plotly_chart(fig, use_container_width=True)
 
-        overall_fulfillment = calculate_overall_demand_fulfillment(products)
-        st.markdown(f"### Overall Demand Fulfillment: {overall_fulfillment:.2f}%")
-
-        st.markdown("## Data Table")
-        st.dataframe(demand_df[demand_df["Product"].isin(products)])
+            st.markdown("## Data Table")
+            st.dataframe(demand_df[demand_df["Product"].isin(products)])
+        
+        elif view_type == 'Overall Fulfillment':
+            demand_summary_df = calculate_overall_demand_fulfillment()
+            st.markdown("## Overall Demand Fulfillment")
+            st.dataframe(demand_summary_df)
 
 
 if __name__ == "__main__":
