@@ -95,7 +95,7 @@ def calculate_overall_demand_fulfillment():
 def main():
     st.set_page_config(page_title="Production Schedule Dashboard", layout="wide")
 
-    st.title("Production Line Dashboard")
+    st.title("Production Schedule Dashboard")
     st.markdown("## Overview")
     st.markdown(
         """
