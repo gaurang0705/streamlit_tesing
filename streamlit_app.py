@@ -55,7 +55,7 @@ def create_demand_plot(selected_products):
         x="Month",
         y=["Optimized Plan quantity", "Sale Demand"],
         barmode="group",
-        title="Monthly Demand Fulfillment",
+        title=f"Monthly Demand Fulfillment for {selected_products}",
         labels={"value": "Quantity", "variable": "Legend"},
         height=400,
     )
