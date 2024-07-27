@@ -93,7 +93,7 @@ def calculate_overall_demand_fulfillment():
 
 # Streamlit code
 def main():
-    st.set_page_config(page_title="Production Line Dashboard", layout="wide")
+    st.set_page_config(page_title="Production Schedule Dashboard", layout="wide")
 
     st.title("Production Line Dashboard")
     st.markdown("## Overview")
