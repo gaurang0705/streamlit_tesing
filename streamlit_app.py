@@ -25,7 +25,7 @@ def create_utilization_plot(line_number):
         yaxis_title="Utilization Percentage",
         template="plotly_white",
         title_font=dict(size=20, family="Arial, sans-serif"),
-        title_x=0.5,
+        title_x=0.25,
     )
     return fig
 
@@ -62,7 +62,7 @@ def create_demand_plot(selected_products):
     fig.update_layout(
         template="plotly_white",
         title_font=dict(size=20, family="Arial, sans-serif"),
-        title_x=0.5,
+        title_x=0.25,
     )
     return fig
 
