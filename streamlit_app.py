@@ -49,13 +49,16 @@ def calculate_overall_utilization():
 
 # Function to create demand fulfillment plot
 def create_demand_plot(selected_products):
+    prod_name = ''
+    for i in selected_products:
+        prod_name = prod_name + ',' + i
     filtered_df = demand_df[demand_df["Product"].isin(selected_products)]
     fig = px.bar(
         filtered_df,
         x="Month",
         y=["Optimized Plan quantity", "Sale Demand"],
         barmode="group",
-        title=f"Monthly Demand Fulfillment for {selected_products}",
+        title=f"Monthly Demand Fulfillment for {prod_name}",
         labels={"value": "Quantity", "variable": "Legend"},
         height=400,
     )
