@@ -37,7 +37,7 @@ def calculate_overall_utilization():
         line_df = utilization_df[utilization_df['Line'] == line]
         total_production = line_df['Quantity'].sum()
         total_capacity = (line_df['total_working_days'] * line_df['daily_capacity']).sum()
-        overall_utilization = (total_production / total_capacity) * 100
+        overall_utilization = round((total_production / total_capacity) * 100,0)
         utilization_summary.append({
             'Line': line,
             'Total Production': total_production,
@@ -74,7 +74,7 @@ def calculate_overall_demand_fulfillment():
         product_df = demand_df[demand_df['Product'] == product]
         total_optimized_plan = product_df['Optimized Plan quantity'].sum()
         total_demand = product_df['Sale Demand'].sum()
-        overall_fulfillment = (total_optimized_plan / total_demand) * 100
+        overall_fulfillment = round((total_optimized_plan / total_demand) * 100,0)
         demand_summary.append({
             'Product': product,
             'Total Optimized Plan': total_optimized_plan,
