@@ -50,8 +50,12 @@ def calculate_overall_utilization():
 # Function to create demand fulfillment plot
 def create_demand_plot(selected_products):
     prod_name = ''
-    for i in selected_products:
-        prod_name = prod_name + ',' + i
+    for i, j in enumerate(selected_products):
+        if i==0:
+            prod_name = prod_name + j
+        else:
+            prod_name = prod_name + ', '+ j
+    
     filtered_df = demand_df[demand_df["Product"].isin(selected_products)]
     fig = px.bar(
         filtered_df,
