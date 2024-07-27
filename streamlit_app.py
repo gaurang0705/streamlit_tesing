@@ -40,15 +40,12 @@ def calculate_overall_utilization():
         total_production = line_df['Quantity'].sum()
         total_capacity = (line_df['total_working_days'] * line_df['daily_capacity']).sum()
         overall_utilization = (total_production / total_capacity) * 100
-        for product_list in line_df['products']:
-            for product in product_list:
-                utilization_summary.append({
-                    'Line': line,
-                    'Product': product,
-                    'Utilization': total_production,
-                    'Daily Capacity': total_capacity,
-                    'Overall Utilization Percentage': overall_utilization
-                })
+        utilization_summary.append({
+            'Line': line,
+            'Total Production': total_production,
+            'Total Capacity': total_capacity,
+            'Overall Utilization Percentage': overall_utilization
+        })
     return pd.DataFrame(utilization_summary)
 
 # Function to create demand fulfillment plot
@@ -77,7 +74,7 @@ def calculate_overall_demand_fulfillment():
         product_df = demand_df[demand_df['Product'] == product]
         total_optimized_plan = product_df['Optimized Plan quantity'].sum()
         total_demand = product_df['Sale Demand'].sum()
-        overall_fulfillment = (total_optimized_plan / total_demand) * 100
+        overall_fulfillment = round((total_optimized_plan / total_demand) * 100,2)
         demand_summary.append({
             'Product': product,
             'Total Optimized Plan': total_optimized_plan,
