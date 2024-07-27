@@ -36,7 +36,7 @@ def calculate_overall_utilization():
     for line in utilization_df['Line'].unique():
         line_df = utilization_df[utilization_df['Line'] == line]
         total_production = line_df['Quantity'].sum()
-        total_capacity = (line_df['total_working_days'] * line_df['daily_capacity']).sum()
+        total_capacity = round((line_df['total_working_days'] * line_df['daily_capacity']).sum(),0)
         overall_utilization = round((total_production / total_capacity) * 100,0)
         utilization_summary.append({
             'Line': line,
