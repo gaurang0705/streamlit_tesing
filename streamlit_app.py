@@ -9,7 +9,7 @@ utilization_df = pd.read_csv("line_utilization.csv")
 
 # Sample data for demand fulfillment
 
-demand_df = pd.read_csv("demand_filfilment.csv")
+demand_df = pd.read_csv("demand_fulfilment.csv")
 
 
 # Function to create utilization plot
