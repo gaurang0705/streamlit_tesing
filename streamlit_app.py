@@ -99,11 +99,11 @@ def main():
     )
 
     if analysis_type == "Line Utilization":
-        utilization_files = os.listdir('utilization')
+        utilization_files = os.listdir('line_utilization')
         selected_utilization_file = st.sidebar.selectbox(
             "Select Utilization File", utilization_files
         )
-        utilization_df = load_data(f'utilization/{selected_utilization_file}')
+        utilization_df = load_data(f'line_utilization/{selected_utilization_file}')
         
         line_number = st.sidebar.selectbox(
             "Select Line Number", utilization_df["Line"].unique()
