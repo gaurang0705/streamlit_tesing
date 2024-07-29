@@ -3,10 +3,10 @@ import plotly.express as px
 import streamlit as st
 
 # Load data for line utilization
-utilization_df = pd.read_csv("line_utilization.csv")
+utilization_df = pd.read_csv("optimization_file/line_utilization.csv")
 
 # Load data for demand fulfillment
-demand_df = pd.read_csv("demand_fulfilment.csv")
+demand_df = pd.read_csv("optimization_file/demand_fulfilment.csv")
 
 
 # Function to create utilization plot
