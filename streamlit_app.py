@@ -1,16 +1,14 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+import os
 
-# Load data for line utilization
-utilization_df = pd.read_csv("line_utilization.csv")
-
-# Load data for demand fulfillment
-demand_df = pd.read_csv("demand_fulfilment.csv")
-
+# Load data based on the selected file
+def load_data(file_path):
+    return pd.read_csv(file_path)
 
 # Function to create utilization plot
-def create_utilization_plot(line_number):
+def create_utilization_plot(line_number, utilization_df):
     filtered_df = utilization_df[utilization_df["Line"] == line_number]
     fig = px.line(
         filtered_df,
@@ -29,15 +27,14 @@ def create_utilization_plot(line_number):
     )
     return fig
 
-
 # Function to calculate overall utilization
-def calculate_overall_utilization():
+def calculate_overall_utilization(utilization_df):
     utilization_summary = []
     for line in utilization_df['Line'].unique():
         line_df = utilization_df[utilization_df['Line'] == line]
         total_production = line_df['Quantity'].sum()
-        total_capacity = round((line_df['total_working_days'] * line_df['daily_capacity']).sum(),0)
-        overall_utilization = round((total_production / total_capacity) * 100,0)
+        total_capacity = round((line_df['total_working_days'] * line_df['daily_capacity']).sum(), 0)
+        overall_utilization = round((total_production / total_capacity) * 100, 0)
         utilization_summary.append({
             'Line': line,
             'Total Production': total_production,
@@ -46,15 +43,9 @@ def calculate_overall_utilization():
         })
     return pd.DataFrame(utilization_summary)
 
-
 # Function to create demand fulfillment plot
-def create_demand_plot(selected_products):
-    prod_name = ''
-    for i, j in enumerate(selected_products):
-        if i==0:
-            prod_name = prod_name + j
-        else:
-            prod_name = prod_name + ', '+ j
+def create_demand_plot(selected_products, demand_df):
+    prod_name = ', '.join(selected_products)
     
     filtered_df = demand_df[demand_df["Product"].isin(selected_products)]
     fig = px.bar(
@@ -73,15 +64,14 @@ def create_demand_plot(selected_products):
     )
     return fig
 
-
 # Function to calculate overall demand fulfillment
-def calculate_overall_demand_fulfillment():
+def calculate_overall_demand_fulfillment(demand_df):
     demand_summary = []
     for product in demand_df['Product'].unique():
         product_df = demand_df[demand_df['Product'] == product]
         total_optimized_plan = product_df['Optimized Plan quantity'].sum()
         total_demand = product_df['Sale Demand'].sum()
-        overall_fulfillment = round((total_optimized_plan / total_demand) * 100,0)
+        overall_fulfillment = round((total_optimized_plan / total_demand) * 100, 0)
         demand_summary.append({
             'Product': product,
             'Total Optimized Plan': total_optimized_plan,
@@ -89,7 +79,6 @@ def calculate_overall_demand_fulfillment():
             'Fulfillment Percentage': overall_fulfillment
         })
     return pd.DataFrame(demand_summary)
-
 
 # Streamlit code
 def main():
@@ -110,6 +99,12 @@ def main():
     )
 
     if analysis_type == "Line Utilization":
+        utilization_files = os.listdir('utilization')
+        selected_utilization_file = st.sidebar.selectbox(
+            "Select Utilization File", utilization_files
+        )
+        utilization_df = load_data(f'utilization/{selected_utilization_file}')
+        
         line_number = st.sidebar.selectbox(
             "Select Line Number", utilization_df["Line"].unique()
         )
@@ -117,18 +112,24 @@ def main():
         
         if view_type == 'Monthly Utilization':
             with st.spinner("Updating Dashboard..."):
-                fig = create_utilization_plot(line_number)
+                fig = create_utilization_plot(line_number, utilization_df)
                 st.plotly_chart(fig, use_container_width=True)
 
             st.markdown("## Data Table")
             st.dataframe(utilization_df[utilization_df["Line"] == line_number])
 
         elif view_type == 'Overall Utilization':
-            utilization_summary_df = calculate_overall_utilization()
+            utilization_summary_df = calculate_overall_utilization(utilization_df)
             st.markdown("## Overall Utilization")
             st.dataframe(utilization_summary_df)
         
     elif analysis_type == "Demand Fulfillment":
+        demand_files = os.listdir('demand')
+        selected_demand_file = st.sidebar.selectbox(
+            "Select Demand File", demand_files
+        )
+        demand_df = load_data(f'demand/{selected_demand_file}')
+        
         products = st.sidebar.multiselect(
             "Select Product(s)",
             demand_df["Product"].unique(),
@@ -138,14 +139,14 @@ def main():
         
         if view_type == 'Monthly Fulfillment':
             with st.spinner("Updating Dashboard..."):
-                fig = create_demand_plot(products)
+                fig = create_demand_plot(products, demand_df)
                 st.plotly_chart(fig, use_container_width=True)
 
             st.markdown("## Data Table")
             st.dataframe(demand_df[demand_df["Product"].isin(products)])
         
         elif view_type == 'Overall Fulfillment':
-            demand_summary_df = calculate_overall_demand_fulfillment()
+            demand_summary_df = calculate_overall_demand_fulfillment(demand_df)
             st.markdown("## Overall Demand Fulfillment")
             st.dataframe(demand_summary_df)
 
