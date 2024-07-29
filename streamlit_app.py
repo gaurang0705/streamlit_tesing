@@ -10,17 +10,17 @@ def load_data(file_path):
 # Function to create utilization plot
 def create_utilization_plot(line_number, utilization_df):
     filtered_df = utilization_df[utilization_df["Line"] == line_number]
-    fig = px.line(
+    fig = px.bar(
         filtered_df,
         x="Month_y",
         y="utilization_percentage",
         title=f"Utilization Percentage for {line_number}",
         labels={"Month_y": "Month", "utilization_percentage": "Utilization Percentage"},
-        markers=True,
     )
     fig.update_layout(
         xaxis_title="Month",
         yaxis_title="Utilization Percentage",
+        yaxis=dict(range=[0, 100]),
         template="plotly_white",
         title_font=dict(size=20, family="Arial, sans-serif"),
         title_x=0.25,
