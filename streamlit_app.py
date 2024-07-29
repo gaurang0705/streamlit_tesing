@@ -1,95 +1,16 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-import os
 
-# Function to get list of files in a directory
-def get_files_in_directory(directory):
-    return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+# Load data for line utilization
+utilization_df = pd.read_csv("line_utilization.csv")
 
-# Streamlit code
-def main():
-    st.set_page_config(page_title="Production Schedule Dashboard", layout="wide")
-
-    st.title("Production Schedule Dashboard")
-    st.markdown("## Overview")
-    st.markdown(
-        """
-        This dashboard provides insights into the production lines and demand fulfillment.
-        Select an analysis type and configure the options to view the respective analysis.
-        """
-    )
-
-    st.sidebar.title("Configuration")
-    analysis_type = st.sidebar.selectbox(
-        "Select Analysis Type", ["Line Utilization", "Demand Fulfillment"]
-    )
-
-    if analysis_type == "Line Utilization":
-        # Get list of files in the utilization folder
-        utilization_files = get_files_in_directory("optimization_file/utilization")
-        
-        # Add a dropdown to select the utilization file
-        selected_utilization_file = st.sidebar.selectbox(
-            "Select Utilization File", utilization_files
-        )
-
-        # Load the selected utilization file
-        utilization_df = pd.read_csv(os.path.join("optimization_file/utilization", selected_utilization_file))
-
-        line_number = st.sidebar.selectbox(
-            "Select Line Number", utilization_df["Line"].unique()
-        )
-        view_type = st.sidebar.radio('Select View', ['Monthly Utilization', 'Overall Utilization'])
-        
-        if view_type == 'Monthly Utilization':
-            with st.spinner("Updating Dashboard..."):
-                fig = create_utilization_plot(line_number, utilization_df)
-                st.plotly_chart(fig, use_container_width=True)
-
-            st.markdown("## Data Table")
-            st.dataframe(utilization_df[utilization_df["Line"] == line_number])
-
-        elif view_type == 'Overall Utilization':
-            utilization_summary_df = calculate_overall_utilization(utilization_df)
-            st.markdown("## Overall Utilization")
-            st.dataframe(utilization_summary_df)
-        
-    elif analysis_type == "Demand Fulfillment":
-        # Get list of files in the demand folder
-        demand_files = get_files_in_directory("optimization_file/demand")
-        
-        # Add a dropdown to select the demand file
-        selected_demand_file = st.sidebar.selectbox(
-            "Select Demand File", demand_files
-        )
-
-        # Load the selected demand file
-        demand_df = pd.read_csv(os.path.join("optimization_file/demand", selected_demand_file))
-
-        products = st.sidebar.multiselect(
-            "Select Product(s)",
-            demand_df["Product"].unique(),
-            default=demand_df["Product"].unique(),
-        )
-        view_type = st.sidebar.radio('Select View', ['Monthly Fulfillment', 'Overall Fulfillment'])
-        
-        if view_type == 'Monthly Fulfillment':
-            with st.spinner("Updating Dashboard..."):
-                fig = create_demand_plot(products, demand_df)
-                st.plotly_chart(fig, use_container_width=True)
-
-            st.markdown("## Data Table")
-            st.dataframe(demand_df[demand_df["Product"].isin(products)])
-        
-        elif view_type == 'Overall Fulfillment':
-            demand_summary_df = calculate_overall_demand_fulfillment(demand_df)
-            st.markdown("## Overall Demand Fulfillment")
-            st.dataframe(demand_summary_df)
+# Load data for demand fulfillment
+demand_df = pd.read_csv("demand_fulfilment.csv")
 
 
 # Function to create utilization plot
-def create_utilization_plot(line_number, utilization_df):
+def create_utilization_plot(line_number):
     filtered_df = utilization_df[utilization_df["Line"] == line_number]
     fig = px.line(
         filtered_df,
@@ -110,7 +31,7 @@ def create_utilization_plot(line_number, utilization_df):
 
 
 # Function to calculate overall utilization
-def calculate_overall_utilization(utilization_df):
+def calculate_overall_utilization():
     utilization_summary = []
     for line in utilization_df['Line'].unique():
         line_df = utilization_df[utilization_df['Line'] == line]
@@ -127,7 +48,7 @@ def calculate_overall_utilization(utilization_df):
 
 
 # Function to create demand fulfillment plot
-def create_demand_plot(selected_products, demand_df):
+def create_demand_plot(selected_products):
     prod_name = ''
     for i, j in enumerate(selected_products):
         if i==0:
@@ -154,7 +75,7 @@ def create_demand_plot(selected_products, demand_df):
 
 
 # Function to calculate overall demand fulfillment
-def calculate_overall_demand_fulfillment(demand_df):
+def calculate_overall_demand_fulfillment():
     demand_summary = []
     for product in demand_df['Product'].unique():
         product_df = demand_df[demand_df['Product'] == product]
@@ -168,6 +89,65 @@ def calculate_overall_demand_fulfillment(demand_df):
             'Fulfillment Percentage': overall_fulfillment
         })
     return pd.DataFrame(demand_summary)
+
+
+# Streamlit code
+def main():
+    st.set_page_config(page_title="Production Schedule Dashboard", layout="wide")
+
+    st.title("Production Schedule Dashboard")
+    st.markdown("## Overview")
+    st.markdown(
+        """
+        This dashboard provides insights into the production lines and demand fulfillment.
+        Select an analysis type and configure the options to view the respective analysis.
+        """
+    )
+
+    st.sidebar.title("Configuration")
+    analysis_type = st.sidebar.selectbox(
+        "Select Analysis Type", ["Line Utilization", "Demand Fulfillment"]
+    )
+
+    if analysis_type == "Line Utilization":
+        line_number = st.sidebar.selectbox(
+            "Select Line Number", utilization_df["Line"].unique()
+        )
+        view_type = st.sidebar.radio('Select View', ['Monthly Utilization', 'Overall Utilization'])
+        
+        if view_type == 'Monthly Utilization':
+            with st.spinner("Updating Dashboard..."):
+                fig = create_utilization_plot(line_number)
+                st.plotly_chart(fig, use_container_width=True)
+
+            st.markdown("## Data Table")
+            st.dataframe(utilization_df[utilization_df["Line"] == line_number])
+
+        elif view_type == 'Overall Utilization':
+            utilization_summary_df = calculate_overall_utilization()
+            st.markdown("## Overall Utilization")
+            st.dataframe(utilization_summary_df)
+        
+    elif analysis_type == "Demand Fulfillment":
+        products = st.sidebar.multiselect(
+            "Select Product(s)",
+            demand_df["Product"].unique(),
+            default=demand_df["Product"].unique(),
+        )
+        view_type = st.sidebar.radio('Select View', ['Monthly Fulfillment', 'Overall Fulfillment'])
+        
+        if view_type == 'Monthly Fulfillment':
+            with st.spinner("Updating Dashboard..."):
+                fig = create_demand_plot(products)
+                st.plotly_chart(fig, use_container_width=True)
+
+            st.markdown("## Data Table")
+            st.dataframe(demand_df[demand_df["Product"].isin(products)])
+        
+        elif view_type == 'Overall Fulfillment':
+            demand_summary_df = calculate_overall_demand_fulfillment()
+            st.markdown("## Overall Demand Fulfillment")
+            st.dataframe(demand_summary_df)
 
 
 if __name__ == "__main__":
