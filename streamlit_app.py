@@ -99,7 +99,7 @@ def main():
     )
 
     if analysis_type == "Line Utilization":
-        utilization_files = os.listdir('line_utilization')
+        utilization_files = sorted(os.listdir('line_utilization'), reverse=True)
         selected_utilization_file = st.sidebar.selectbox(
             "Select Utilization File", utilization_files
         )
@@ -124,7 +124,7 @@ def main():
             st.dataframe(utilization_summary_df)
         
     elif analysis_type == "Demand Fulfillment":
-        demand_files = os.listdir('demand')
+        demand_files = sorted(os.listdir('demand'), reverse=True)
         selected_demand_file = st.sidebar.selectbox(
             "Select Demand File", demand_files
         )
