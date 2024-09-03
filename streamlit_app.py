@@ -88,7 +88,8 @@ def main():
     st.markdown("## Overview")
     st.markdown(
         """
-        This dashboard provides insights into the production lines and demand fulfillment.\n Select an analysis type and configure the options to view the respective analysis.
+        This dashboard provides insights into the production lines and demand fulfillment.
+        \n Select an analysis type and configure the options to view the respective analysis.
         """
     )
 
